@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header>
+    <div class="header_logo">
+        <h1 class="logo">LIMEBECK.DEV</h1>
+    </div>
+</header>
+<h1 class="title">LIMEBECK.DEV</h1>
+<!-- <p>Click <a href="{{ get_url(path='@/blog/_index.md') }}">here</a> to see my posts.</p> -->
+<h1 class="title">
+    {{ section.title }}
+  </h1>
+  <ul>
+    <!-- If you are using pagination, section.pages will be empty. You need to use the paginator object -->  
+    {% for page in section.pages %}
+    <li>{{ page.date | safe }} {{ page.reading_time }} {{ page.lang }} <a href="{{ page.permalink | safe }}">{{ page.title }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

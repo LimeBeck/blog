@@ -1,0 +1,72 @@
+@import "colors.scss";
+
+@font-face {
+    font-family: 'Iosevka';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/iosevka-extended.woff2') format('woff2'), url('/fonts/iosevka-extended.woff') format('woff'), url('/fonts/iosevka-extended.ttf') format('truetype');
+}
+
+html,
+body {
+    background-color: var(--background-color);
+    padding: 0.2rem 0.5rem;
+    font-family: 'Iosevka';
+    // max-width: 50rem;
+}
+
+.title {
+    color: var(--accent-color);
+}
+
+* {
+    color: var(--primary-color);
+    // color: #C6D8FF;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: var(--background-color);
+    background-color: var(--accent-color);
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin: 0;
+}
+
+.header_logo {
+    a {
+        text-decoration: none;
+        max-width: 100%;
+        flex: 0 0 auto;
+    }
+
+    display: flex;
+    flex: 1;
+}
+
+.header_logo:after {
+    content: '';
+    background: repeating-linear-gradient(90deg, var(--accent-color), var(--accent-color) 2px, transparent 0, transparent 10px);
+    display: block;
+    width: 100%;
+}
+
+.lang_switch {
+    a {
+        text-decoration: none;
+
+    }
+
+    display: flex;
+}
+
+.post_date {
+    opacity: 0.5;
+}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  </h1>
+  <ul>
+    <!-- If you are using pagination, section.pages will be empty. You need to use the paginator object -->  
+    {% for page in paginator.pages %}
+    <li>
+      <div class="post">
+        <div class="post_link">
+          <a href="{{ page.permalink | safe }}">{{ page.title }}</a> 
+        </div>
+        <div class="post_date">
+          {{ trans(key="pub_date", lang=lang)}}: {{ page.date | safe }}
+        </div>
+        <div class="post_summary">
+          {{ page.summary | safe }} 
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if paginator.number_pagers > 1 %}
+    <a href="{{paginator.first}}">‹‹</a>
+    {% if paginator.previous %}
+      <a class="previous" href="{{ paginator.previous }}">‹</a>
+    {% endif %}
+    <span>{{paginator.current_index}}</span>
+    {% if paginator.next %}
+      <a class="next" href="{{ paginator.next }}">›</a>
+    {% endif %}
+    <a href="{{paginator.last}}">››</a>
+  {% endif %}
+{% endblock content %}
