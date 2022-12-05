@@ -21,12 +21,12 @@ jobs:
           zola build --base-url "https://limebeck.github.io/blog"
           tar -czvf "$RUNNER_TEMP/pages.tar.gz" ./public 
     
-    - name: Upload artifact
-      uses: actions/upload-artifact@main
-      with:
-        name: github-pages
-        path: ${{ runner.temp }}/pages.tar.gz
-        retention-days: 1
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/pages.tar.gz
+          retention-days: 1
 
   deploy:
     # Add a dependency to the build job
