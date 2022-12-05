@@ -1,0 +1,10 @@
+version: '3.8'
+services: 
+  site:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SITE=http://localhost:8000
+    ports: 
+      - '8000:80'
