@@ -4,6 +4,14 @@
 <head>
     <meta charset="utf-8">
     <title>{% if section.title %}{{ section.title }}{% elif page.title %}{{ page.title }}{% else %}LIMEBECK.DEV{% endif %}</title>
+    <style >
+        @font-face {
+            font-family: 'Iosevka';
+            font-style: normal;
+            font-weight: 400;
+            src: url('{{ get_url(path="fonts/iosevka-extended.woff2") }}') format('woff2'), url('{{ get_url(path="fonts/iosevka-extended.woff") }}') format('woff'), url('{{ get_url(path="fonts/iosevka-extended.ttf") }}') format('truetype');
+        }
+    </style>
     <link rel="stylesheet" href="{{ config.base_url }}/index.css"/>
 </head>
 

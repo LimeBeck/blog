@@ -1,12 +1,5 @@
 @import "colors.scss";
 
-@font-face {
-    font-family: 'Iosevka';
-    font-style: normal;
-    font-weight: 400;
-    src: url('/fonts/iosevka-extended.woff2') format('woff2'), url('/fonts/iosevka-extended.woff') format('woff'), url('/fonts/iosevka-extended.ttf') format('truetype');
-}
-
 html,
 body {
     background-color: var(--background-color);
