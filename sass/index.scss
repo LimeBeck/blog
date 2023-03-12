@@ -5,6 +5,7 @@ body {
     background-color: var(--background-color);
     padding: 0.2rem 0.5rem;
     font-family: 'Iosevka';
+    font-size: 20px;
     // max-width: 50rem;
 }
 
@@ -64,14 +65,26 @@ body {
     opacity: 0.5;
 }
 
+.post_link {
+    font-size: 25px;
+}
+
 .danger {
     color: red;
 }
 
 .container {
-    max-width: 50rem;
+    max-width: 70rem;
 }
 
 header {
-    max-width: 60rem;
+    max-width: 80rem;
+}
+
+code {
+    color: var(--code-color);
+}
+
+pre {
+    padding: 1rem;
 }
