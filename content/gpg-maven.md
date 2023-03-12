@@ -1,6 +1,6 @@
 +++
 title = "GPG-sign in CI/CD builds"
-date = 2022-12-02
+date = 2023-03-12
 +++
 
 ### TL;DR;
