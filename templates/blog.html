@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  </h1>
   <ul>
-    <!-- If you are using pagination, section.pages will be empty. You need to use the paginator object -->  
     {% for page in paginator.pages %}
     <li>
       <div class="post">
         <div class="post_link">
-          <a href="{{ page.permalink | safe }}">{{ page.title }}</a> 
+          <a href="{{ page.permalink | safe }}">{{ page.title }}</a> <span>[{% for tr in page.translations %}{{tr.lang}}{% if not loop.last %},{% endif %}{% endfor %}]</span>
         </div>
         <div class="post_date">
           {{ trans(key="pub_date", lang=lang)}}: {{ page.date | safe }}

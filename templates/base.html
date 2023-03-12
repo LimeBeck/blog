@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 
 <head>
     <meta charset="utf-8">
@@ -19,9 +19,15 @@
     <header>
         <div class="header">
             <div class="header_logo">
-                <a href="{{ config.base_url }}">
-                    <h1 class="logo">LIMEBECK.DEV</h1>
-                </a>
+                {% if lang == "en" %}
+                    <a href="{{ get_url(path='@/_index.md') }}">
+                        <h1 class="logo">LIMEBECK.DEV</h1>
+                    </a>
+                {% else %}
+                    <a href="{{ get_url(path='@/_index.ru.md') }}">
+                        <h1 class="logo">LIMEBECK.DEV</h1>
+                    </a>
+                {% endif %}
             </div>
             <div class="lang_switch">
                 {% if lang == "en" %}
