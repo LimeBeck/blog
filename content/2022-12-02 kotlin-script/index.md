@@ -1,5 +1,6 @@
 +++
 title = "Using Kotlin Script for DSL-based configurations (IN-PROGRESS)"
+slug = "kotlin-script"
 date = 2022-12-02
 +++
 

@@ -1,5 +1,6 @@
 +++
 title = "Используем Kotlin Script для конфигурации через DSL (IN-PROGRESS)"
+slug = "kotlin-script"
 date = 2022-12-02
 +++
 
@@ -22,6 +23,6 @@ date = 2022-12-02
 
 То есть сам `build.gradle.kts` - лишь "кусочек" большого объекта конфигурации сборки:
 
-![](kotlin/gradle_this.png)
+![](img/gradle_this.png)
 
 Т.е. для `kts` файлов мы можем указать, в контексте какого объекта он будет выполняться.
