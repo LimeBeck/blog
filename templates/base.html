@@ -31,14 +31,26 @@
             </div>
             <div class="lang_switch">
                 {% if lang == "en" %}
-                    <a href="{{ get_url(path='@/_index.ru.md') }}">
-                        <h1 class="logo">RU</h1>
-                    </a>
+                    {% set another_lang = 'ru' %}
                 {% else %}
-                    <a href="{{ get_url(path='@/_index.md') }}">
-                        <h1 class="logo">EN</h1>
-                    </a>
-                {% endif %}            
+                    {% set another_lang = 'en' %}
+                {% endif %}
+
+                {% if page %}
+                    {% set path = page.translations | filter(attribute='lang', value=another_lang) | map(attribute='permalink') | first %}
+                {% elif section %}
+                    {% set path = section.translations | filter(attribute='lang', value=another_lang) | map(attribute='permalink') | first %}
+                {% elif term %}
+                    {% set term_another_lang = get_taxonomy_term(kind=taxonomy.name, term=term.name, lang=another_lang) %}
+                    {% set path = term_another_lang.permalink %}
+                {% elif taxonomy %}
+                    {% set path = get_url(path=taxonomy.name, lang=another_lang) %}
+                {% else %}
+                    {% set path = get_url(path='@/_index.md', lang=another_lang) %}
+                {% endif %}
+                <a href="{{ path }}">
+                    <h1 class="logo">{{ another_lang | upper }}</h1>
+                </a>  
             </div>
         </div>
     </header>

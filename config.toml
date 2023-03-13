@@ -9,6 +9,11 @@ build_search_index = true
 default_language = "en"
 paginate_by = 5
 
+taxonomies = [
+    { name = "tags", feed = true, lang = "ru" },
+    { name = "tags", feed = true, lang = "en" }
+]
+
 [markdown]
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
@@ -20,11 +25,21 @@ highlight_code = true
 [languages]
 [languages.ru]
 title = "LIMEBECK BLOG"
+
+taxonomies = [
+    { name = "tags", feed = true, lang = "ru" },
+    { name = "tags", feed = true, lang = "en" }
+]
+
 [languages.ru.translations]
 pub_date = "Опубликовано"
+tags = "Тэги"
+publications = "Публикаций"
 
 [languages.en]
 title = "LIMEBECK BLOG"
 
 [languages.en.translations]
 pub_date = "Published"
+tags = "Tags"
+publications = "Publications"

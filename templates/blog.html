@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<menu>
+  {% set tags = get_taxonomy(kind='tags', lang=lang) %}
+  <h1><a href="{{ tags.permalink }}">-->{{ trans(key="tags", lang=lang)}}</a></h1>
+</menu>
+<h1 class="title">{{ trans(key="publications", lang=lang)}}</h1>
   <ul>
     {% for page in paginator.pages %}
     <li>
       <div class="post">
         <div class="post_link">
-          <a href="{{ page.permalink | safe }}">{{ page.title }}</a> <span>[{% for tr in page.translations %}{{tr.lang}}{% if not loop.last %},{% endif %}{% endfor %}]</span>
+          <a href="{{ page.permalink | safe }}">{{ page.title }}</a> 
+          <span>[{% for tr in page.taxonomies.tags %}{% set term = get_taxonomy_term(kind='tags', term=tr, lang=lang) %}<a href="{{ term.permalink }}">{{ tr | upper }}</a>{% if not loop.last %},{% endif %}{% endfor %}]</span>
+          <!-- <span>[{% for tr in page.translations %}{{tr.lang}}{% if not loop.last %},{% endif %}{% endfor %}]</span> -->
         </div>
         <div class="post_date">
           {{ trans(key="pub_date", lang=lang)}}: {{ page.date | safe }}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title">{{ trans(key=taxonomy.name, lang=lang) | upper }}</h1>
+    <ul>
+        {% for term in terms | sort(attribute="page_count") | reverse %}
+            <li><a href="{{ term.permalink }}">{{ term.name | upper }}</a> ({{ term.page_count }} {{ trans(key="publications", lang=lang) | lower }})</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

@@ -1,6 +1,8 @@
 +++
 title = "GPG-sign in CI/CD builds"
 date = 2023-03-12
+[taxonomies]
+tags = ["til", "gpg", "ci/cd"]
 +++
 
 ### TL;DR;
