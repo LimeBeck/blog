@@ -2,7 +2,7 @@
 title = "Настройка GPG подписи в CI/CD"
 date = 2023-03-12
 [taxonomies]
-tags = ["til"]
+tags = ["til", "gpg", "ci/cd"]
 +++
 
 ### TL;DR;

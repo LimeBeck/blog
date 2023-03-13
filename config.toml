@@ -33,8 +33,8 @@ taxonomies = [
 
 [languages.ru.translations]
 pub_date = "Опубликовано"
-tags = "Все теги"
-publications = "Все публикации"
+tags = "Тэги"
+publications = "Публикаций"
 
 [languages.en]
 title = "LIMEBECK BLOG"
