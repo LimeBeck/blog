@@ -44,6 +44,11 @@
     </header>
     <section class="section">
         <div class="container">
+            <menu>
+                {% set tags = get_taxonomy(kind='tags', lang=lang) %}
+                <h1><a href="{{ tags['permalink'] }}">-->{{ trans(key="tags", lang=lang)}}</a></h1>
+                <h1>-->{{ trans(key="publications", lang=lang)}}</h1>
+            </menu>
             {% block content %} {% endblock %}
         </div>
     </section>

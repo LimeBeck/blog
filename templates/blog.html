@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1 class="title">{{ trans(key="publications", lang=lang)}}</h1>
   <ul>
     {% for page in paginator.pages %}
     <li>

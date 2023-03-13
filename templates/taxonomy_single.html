@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="title">{{ term.name | upper }}</h1>
+<ul>
+    {% for page in term.pages %}
+    <li>
+        <div class="post">
+            <div class="post_link">
+                <a href="{{ page.permalink | safe }}">{{ page.title }}</a> <span>[{% for tr in page.translations
+                    %}{{tr.lang}}{% if not loop.last %},{% endif %}{% endfor %}]</span>
+            </div>
+            <div class="post_date">
+                {{ trans(key="pub_date", lang=lang)}}: {{ page.date | safe }}
+            </div>
+            <div class="post_summary">
+                {{ page.summary | safe }}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
