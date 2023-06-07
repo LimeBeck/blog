@@ -6,13 +6,10 @@ date = 2023-06-07
 tags = ["kotlin", "gradle", "gradle-plugin"]
 +++
 
-# Пишем и тестируем Gradle-плагин
+Пишем Gradle плагин на примере плагина для генерации статической конфигурации приложения во время сборки
+([BUILD TIME CONFIG](https://github.com/LimeBeck/build-time-config))
 
 <!-- more -->
-
-Итак, вы решили написать Gradle плагин для, например, генерации статической конфигурации приложения во время сборки.
-
-(на примере проекта [BUILD TIME CONFIG](https://github.com/LimeBeck/build-time-config))
 
 ## Что хотим получить:
 
@@ -324,3 +321,316 @@ class BuildTimeConfig : Plugin<Project> {
     }
 }
 ```
+
+Теперь у нас есть плагин с задачей. Логика генерации файлов за рамками статьи, поэтому приведем полный листинг:
+
+`src/main/kotlin/ConfigBuilder.kt`
+```kotlin
+package dev.limebeck
+
+import org.gradle.api.Action
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
+import java.io.File
+import kotlin.reflect.KClass
+
+open class ConfigBuilder(
+    @Input
+    val name: String? = null,
+    private val objectFactory: ObjectFactory
+) {
+
+    @Input
+    val packageName: Property<String> = objectFactory.property(String::class.java)
+
+    @Input
+    val objectName: Property<String> = objectFactory.property(String::class.java)
+
+    @OutputDirectory
+    val destination: RegularFileProperty = objectFactory.fileProperty()
+
+    @Input
+    val allProperties: MutableList<ConfigPropertyHolder> = mutableListOf()
+
+    internal fun build(): Config {
+        val name = name ?: "unnamed"
+        return Config(
+            configName = name,
+            packageName = packageName.get(),
+            objectName = objectName.get(),
+            properties = allProperties,
+            destinationDir = File(destination.get().asFile, name)
+        )
+    }
+
+    @Suppress("UNUSED")
+    fun configProperties(action: Action<ConfigPropertiesBuilder>) {
+        val builder = ConfigPropertiesBuilder()
+        action.execute(builder)
+        allProperties.addAll(builder.allConfigProperties)
+    }
+}
+
+open class ConfigPropertiesBuilder {
+    val allConfigProperties: MutableList<ConfigPropertyHolder> = mutableListOf()
+
+    fun <T : Any> property(name: String, type: KClass<T>): ConfigPropertyDefinition<T> {
+        return ConfigPropertyDefinition(name, type)
+    }
+
+    @Suppress("UNUSED")
+    inline fun <reified T : Any> property(name: String) = property(name, T::class)
+
+    infix fun <T : Any> ConfigPropertyDefinition<T>.set(value: T?) {
+        allConfigProperties.add(
+            ConfigProperty(
+                name = name,
+                type = type,
+                value = value
+            )
+        )
+    }
+
+    @Suppress("UNUSED")
+    fun obj(name: String) = ConfigObjectDefinition(name)
+
+    infix fun ConfigObjectDefinition.set(action: Action<ConfigPropertiesBuilder>) {
+        val builder = ConfigPropertiesBuilder()
+        action.execute(builder)
+        allConfigProperties.add(ConfigObject(name, builder.allConfigProperties))
+    }
+
+    data class ConfigPropertyDefinition<T : Any>(
+        val name: String,
+        val type: KClass<T>
+    )
+
+    data class ConfigObjectDefinition(
+        val name: String
+    )
+}
+```
+
+
+`src/main/kotlin/ConfigModels.kt`
+```kotlin
+package dev.limebeck
+
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.OutputDirectory
+import java.io.File
+import kotlin.reflect.KClass
+
+data class Config(
+    @Input
+    val configName: String,
+    @Input
+    val packageName: String,
+    @Input
+    val objectName: String,
+    @Nested
+    val properties: List<ConfigPropertyHolder>,
+    @OutputDirectory
+    val destinationDir: File
+)
+
+sealed class ConfigPropertyHolder(
+    @Input open val name: String
+)
+
+data class ConfigProperty<T : Any>(
+    @Input
+    override val name: String,
+    @Internal
+    val type: KClass<T>,
+    @Input
+    val value: T?
+) : ConfigPropertyHolder(name)
+
+data class ConfigObject(
+    @Input
+    override val name: String,
+    @Nested
+    val properties: List<ConfigPropertyHolder>,
+) : ConfigPropertyHolder(name)
+```
+
+Добавим зависимость для генерации кода в `build.gradle.kts`:
+```kotlin
+dependencies {
+    implementation(libs.kotlinpoet)
+}
+```
+
+Функцию генерации кода заменим на следующую:
+
+`src/main/kotlin/ConfigWriter.kt`
+```kotlin
+package dev.limebeck
+
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import java.security.InvalidParameterException
+import kotlin.reflect.full.isSubclassOf
+
+fun TypeSpec.Builder.makeProperty(prop: ConfigPropertyHolder) {
+    when (prop) {
+        is ConfigObject -> {
+            val type = TypeSpec.objectBuilder(prop.name).also { b ->
+                prop.properties.forEach { b.makeProperty(it) }
+            }.build()
+            addType(type)
+        }
+
+        is ConfigProperty<*> -> {
+            val template = when {
+                prop.type.isSubclassOf(Boolean::class) -> "%L"
+                prop.type.isSubclassOf(Number::class) -> "%L"
+                prop.type.isSubclassOf(String::class) -> "%S"
+                else -> throw InvalidParameterException("<4ac3a89c> Unknown property type ${prop.type}")
+            }
+            val prop = PropertySpec
+                .builder(prop.name, prop.type)
+                .initializer(template, prop.value)
+                .build()
+            addProperty(prop)
+        }
+    }
+}
+
+fun generateKotlinFile(config: Config): String {
+    val propertyObj = TypeSpec
+        .objectBuilder(config.objectName)
+        .apply {
+            config.properties.forEach { makeProperty(it) }
+        }.build()
+
+    val fileSpec = FileSpec
+        .builder(config.packageName, config.objectName + ".kt")
+        .addType(propertyObj)
+        .build()
+
+    return StringBuilder().also {
+        fileSpec.writeTo(it)
+    }.toString()
+}
+```
+
+## Тестирование плагина
+
+### Наивный подход
+
+* публикуем плагин в MavenLocal
+* создаём новый проект
+* подключаем плагин из MavenLocal, для чего необходимо:
+   ```kotlin
+    pluginManagement {
+        repositories {
+            mavenLocal()
+            gradlePortal()
+            mavenCentral()
+        }
+    }
+   ```
+
+Плюсы:
+* Быстро писать
+* Быстро тестировать
+
+Минусы:
+* Невозможно тестировать автоматически
+
+### Автотесты с Gradle TestKit
+
+Добавим новые зависимости необходимые для тестирования:
+
+`build.gradle.kts`
+```kotlin
+dependencies {
+    testImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21")
+    testImplementation(kotlin("test"))
+    testImplementation(gradleTestKit())
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+```
+
+Создадим файл с тестом, в котором просто убедимся, что задача успешно выполняется:
+
+`src/test/kotlin/PluginTest.kt`
+```kotlin
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.writeText
+import kotlin.io.path.createDirectories
+import kotlin.test.assertEquals
+
+class PluginTest {
+
+    @TempDir
+    lateinit var testProjectDir: Path
+
+    private lateinit var gradleRunner: GradleRunner
+
+    @BeforeEach
+    fun setup() {
+        gradleRunner = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(testProjectDir.toFile())
+            .withTestKitDir(testProjectDir.resolve("./testKit").createDirectories().toFile())
+    }
+
+    @Test
+    fun `Generate build time config`() {
+        val buildGradleContent = """
+            plugins {
+                kotlin("jvm") version "1.8.0"
+                id("dev.limebeck.build-time-config")
+            }
+            buildTimeConfig {
+                config {
+                    packageName.set("dev.limebeck.config")
+                    objectName.set("MyConfig")
+                    destination.set(project.buildDir)
+
+                    configProperties {
+                        property<String>("someProp") set "SomeValue"
+                        property<Int>("someProp2") set 123
+                        property<Double>("someProp3") set 123.0
+                        property<Long>("someProp4") set 123L
+                        property<Boolean>("someProp5") set true
+                        obj("nested") set {
+                            property<String>("someProp") set "SomeValue"
+                        }
+                    }
+                }
+            }
+        """.trimIndent()
+        testProjectDir
+            .resolve("build.gradle.kts")
+            .createFile()
+            .writeText(buildGradleContent)
+        testProjectDir
+            .resolve("settings.gradle.kts")
+            .createFile()
+            .writeText("rootProject.name = \"build-time-config-test\"")
+
+        val codeGenerationResult = gradleRunner.withArguments("generateConfig").build()
+        assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":generateConfig")!!.outcome)
+    }
+}
+```
+
