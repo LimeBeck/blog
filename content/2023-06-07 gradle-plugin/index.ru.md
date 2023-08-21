@@ -162,6 +162,49 @@ gradlePlugin {
 получаем API Key и API Secret которые прописываем в параметрах Gradle пользователя 
 (можно воспользоваться мануалом на [docs.gradle.org](https:///current/userguide/publishing_gradle_plugins.html))
 
+### Публикация в приватный Maven-репозиторий
+
+Для публикации во внутренний Nexus необходимо описать публикацию и репозиторий в `build.gradle.kts`:
+
+```kotlin
+publishing {
+    repositories {
+        maven {
+            name = "InternalRepo"
+            url = uri(
+                System.getenv("PUBLISH_REPO_URI")
+                    ?: project.findProperty("publish.repo.uri") as String
+            )
+            isAllowInsecureProtocol = true
+ 
+            val username = System.getenv("PUBLISH_REPO_USERNAME")
+                ?: project.findProperty("publish.repo.username") as String?
+            val password = System.getenv("PUBLISH_REPO_PASSWORD")
+                ?: project.findProperty("publish.repo.password") as String?
+            if (username != null && password != null) {
+                credentials {
+                    this.username = username
+                    this.password = password
+                }
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("build-time-config-plugin") {
+            from(components["java"])
+            groupId = "dev.limebeck"
+            artifactId = "build-time-config-plugin"
+            pom {
+                name.set("Kotlin Build-Time Config")
+                description.set("Gradle plugin for providing build-time configuration properties for kotlin application")
+                groupId = "dev.limebeck"
+            }
+        }
+    }
+}
+```
+
+
 Дальше необходимо создать класс с плагином. Для этого унаследуемся от `org.gradle.api.Plugin<Project>`:
 
 `src/main/kotlin/BuildTimeConfig.kt`
