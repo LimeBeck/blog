@@ -90,7 +90,7 @@ class Application {
 
 ## Создаём проект
 
-Создаём новый Gradle проект, прописываем зависимости в `gradle/libs.versions.toml`:
+Создайте новый Gradle проект и укажите зависимости в `gradle/libs.versions.toml`:
 
 ```toml
 [versions] # Здесь фиксируем конкретные версии, на которые можно будет ссылаться далее
@@ -160,7 +160,7 @@ gradlePlugin {
 
 Для публикации в Gradle Portal регистрируемся в [plugins.gradle.org](https://plugins.gradle.org/), 
 получаем API Key и API Secret которые прописываем в параметрах Gradle пользователя 
-(можно воспользоваться мануалом на [docs.gradle.org](https:///current/userguide/publishing_gradle_plugins.html))
+(можно воспользоваться мануалом на [docs.gradle.org](https://docs.gradle.org/current/userguide/publishing_gradle_plugins.html))
 
 ### Публикация в приватный Maven-репозиторий
 
@@ -692,5 +692,3 @@ class PluginTest {
 ```
 
 TODO: Описать как работают тесты
-
-TODO: Описать публикацию плагина в приватный репозиторий
