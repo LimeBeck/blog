@@ -12,19 +12,20 @@ tags = ["kotlin"]
 
 <!-- more -->
 
-<!--
 План:
 1. Введение в Kotlin Script на примере Gradle kts
 1. KEEP Scripting Support
 1. Kotlin Script как способ описания логики в приложениях
     1. Script definition
     1. Script loader
+    1. Подсветка синтаксиса в IDE
+        1. Собственный плагин для поддержки верного контекста скрипта без Gradle проекта
     1. Собираем всё вместе
     1. Безопасность (ограничение доступного classpath)
 1. Kotlin Script как замена bash-скриптам
+    1. `main.kts`
 1. Недостатки Kotlin Script
 1. Примеры использования
--->
 
 # Введение
 
@@ -66,16 +67,15 @@ tags = ["kotlin"]
 
 Для начала, нам нужно описать, с каким расширением будет наш скрипт и будет определяться его компиляция и рантайм:
 
+`scriptDef.kt`
 ```kotlin
 @KotlinScript(
     fileExtension = "reveal.kts",
     compilationConfiguration = RevealKtScriptCompilationConfiguration::class,
     evaluationConfiguration = RevealKtEvaluationConfiguration::class,
 )
-abstract class RevealKtScript
+abstract class RevealKtScript //Класс обязательно должен быть открытым или абстрактным
 ```
-
-
 
 ```kotlin
 object RevealKtScriptCompilationConfiguration : ScriptCompilationConfiguration({
@@ -92,20 +92,94 @@ object RevealKtScriptCompilationConfiguration : ScriptCompilationConfiguration({
     ide {
         acceptedLocations(ScriptAcceptedLocation.Everywhere)
     }
+    
+    //Костыль, без которого скриптинг не работает после версии 1.7.20
+    compilerOptions.append("-Xadd-modules=ALL-MODULE-PATH") 
+})
+```
 
-    // Callbacks
+Если есть желание добавить возможность в скрипте подключать любые зависимости из Maven-репозиториев, 
+то можно добавить в конфигурацию компиляции следующее:
+
+(внутри `RevealKtScriptCompilationConfiguration`)
+```kotlin
     refineConfiguration {
         // Process specified annotations with the provided handler
         onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)
     }
-})
+
+    // Handler that reconfigures the compilation on the fly
+    fun configureMavenDepsOnAnnotations(
+        context: ScriptConfigurationRefinementContext
+    ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
+        val annotations = context.collectedData?.get(ScriptCollectedData.collectedAnnotations)
+            ?.takeIf { it.isNotEmpty() }
+            ?: return context.compilationConfiguration.asSuccess()
+        return runBlocking {
+            resolver.resolveFromScriptSourceAnnotations(annotations)
+        }.onSuccess {
+            context.compilationConfiguration.with {
+                dependencies.append(JvmDependency(it))
+            }.asSuccess()
+        }
+    }
+
+    private val resolver = CompoundDependenciesResolver(
+        FileSystemDependenciesResolver(), 
+        MavenDependenciesResolver()
+    )
 ```
 
+Для того, чтобы IDEA распознала наши скрипты `My-Shiny-Presentation.revealkt.kts` необходимо добавить в 
+`META-INF/kotlin/script/templates` проекта пустой файл с full qualified name в названии:
+
+`META-INF/kotlin/script/templates/dev.limebeck.revealkt.scripts.RevealKtScript.classname`
+
 ### Script Loader
+
+В принципе, всё, что необходимо для выполнения нашего скрипта - вот эти строчки:
+
+```kotlin
+fun BasicJvmScriptingHost.evalFile(scriptFile: File): ResultWithDiagnostics<EvaluationResult> {
+    val compilationConfiguration = createJvmCompilationConfigurationFromTemplate<RevealKtScript> { 
+        //Тут мы можем дополнить и переопределить конфигурацию при необходимости
+    }
+    val evaluationConfiguration = createJvmEvaluationConfigurationFromTemplate<RevealKtScript> {
+        //Тут мы можем дополнить и переопределить конфигурацию при необходимости
+    }
+    return eval(
+        script = scriptFile.toScriptSource(),
+        compilationConfiguration = compilationConfiguration,
+        evaluationConfiguration = evaluationConfiguration
+    )
+}
+
+val scriptingHost = BasicJvmScriptingHost()
+val result = scriptingHost.evalFile(scriptFile)
+```
+
+Получить наш билдер после выполнения можно следующим образом:
+
+```kotlin
+val implicitReceivers = result.valueOrNull()
+    ?.configuration
+    ?.notTransientData
+    ?.entries
+    ?.find { it.key.name == "implicitReceivers" }?.value as? List<*>
+
+val builder = implicitReceivers?.filterIsInstance<RevealKtBuilder>()?.firstOrNull()
+```
+
+## Подсветка в IDE
+
+Для работы подсветки в IDE необходимо, чтобы в classpath текущего проекта находилась наша библиотека с script definition
 
 # Недостатки
 
 * Не хватает возможности в самом скрипте определить артефакт и репозиторий с Script Definition
+* Подсветка кода работает только в IDEA
+* Общая сырость
+* Время выполнения (первый запуск до нескольких секунд)
 
 # Заметки
 
