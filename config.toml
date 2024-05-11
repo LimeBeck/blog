@@ -33,8 +33,10 @@ taxonomies = [
 
 [languages.ru.translations]
 pub_date = "Опубликовано"
-tags = "Тэги"
-publications = "Публикаций"
+tags = "Список тэгов"
+publications = "Публикации"
+about = "Обо мне"
+edit = "Редактировать на GitHub"
 
 [languages.en]
 title = "LIMEBECK BLOG"
@@ -43,3 +45,5 @@ title = "LIMEBECK BLOG"
 pub_date = "Published"
 tags = "Tags"
 publications = "Publications"
+about = "About me"
+edit = "Edit on GitHub"
