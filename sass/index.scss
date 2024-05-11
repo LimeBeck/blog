@@ -89,3 +89,21 @@ pre {
     padding: 1rem;
     text-wrap: pretty;
 }
+
+menu {
+    list-style-type: none;
+}
+  
+menu li {
+    display: inline;
+}
+
+menu li a {
+    text-decoration: none;
+    padding: 10px;
+}
+  
+menu li a:hover {
+    border-bottom: 2px solid var(--primary-color);
+}
+  

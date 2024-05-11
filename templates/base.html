@@ -73,6 +73,11 @@
         </div>
     </header>
     <section class="section">
+        <menu>
+          {% set tags = get_taxonomy(kind='tags', lang=lang) %}
+          <li><a href="{{ tags.permalink }}">::{{ trans(key="tags", lang=lang)  | lower }}</a></h1></li>
+          <li><a href="{{ get_url(path="@/pages/about.md", lang=lang) }}">::{{ trans(key="about", lang=lang) | lower }}</a></li>
+        </menu>
         <div class="container">
             {% block content %} {% endblock %}
         </div>
