@@ -12,4 +12,6 @@ Talk on JPoint conference: [Kotlin Script: For Whom, Why and How (RU)](https://j
 
 Presentation available in russian only: [Kotlin Script: For Whom, Why and How (RU)](https://kotlin-script.static.limebeck.dev/)
 
+Sources and examples also availavle in [GitHub repo](https://github.com/LimeBeck/kotlin-script-presentation)
+
 <!-- more -->
