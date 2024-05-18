@@ -14,6 +14,6 @@ Kotlin Script, хоть и находится в beta, уже представл
 
 Презентация к докладу доступна по ссылке: [Kotlin Script: для кого, зачем и как](https://kotlin-script.static.limebeck.dev/)
 
-Репозиторий с исходниками презентации и примерами использования доступен на GitHub в [репозитории](https://github.com/LimeBeck/kotlin-script-presentation)
+Исходники презентации и примеры использования доступны на GitHub в [репозитории](https://github.com/LimeBeck/kotlin-script-presentation)
 
 <!-- more -->
