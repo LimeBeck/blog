@@ -4,6 +4,7 @@ slug = "kotlin-script"
 date = 2022-12-02
 [taxonomies]
 tags = ["kotlin"]
+draft = true
 +++
 
 Some summary here

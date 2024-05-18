@@ -4,6 +4,7 @@ slug = "kotlin-script"
 date = 2022-12-02
 [taxonomies]
 tags = ["kotlin"]
+draft = true
 +++
 
 Если вы знакомы с Gradle, то скорее всего, вам уже доводилось сталкиваться
