@@ -2,9 +2,9 @@
 title = "Using Kotlin Script for DSL-based configurations (IN-PROGRESS)"
 slug = "kotlin-script"
 date = 2022-12-02
+draft = true
 [taxonomies]
 tags = ["kotlin"]
-draft = true
 +++
 
 Some summary here

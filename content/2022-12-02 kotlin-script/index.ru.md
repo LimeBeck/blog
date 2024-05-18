@@ -2,9 +2,9 @@
 title = "Используем Kotlin Script для конфигурации через DSL (IN-PROGRESS)"
 slug = "kotlin-script"
 date = 2022-12-02
+draft = true
 [taxonomies]
 tags = ["kotlin"]
-draft = true
 +++
 
 Если вы знакомы с Gradle, то скорее всего, вам уже доводилось сталкиваться
