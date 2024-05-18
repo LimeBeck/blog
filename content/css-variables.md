@@ -32,7 +32,10 @@ tags = ["til", "css", "styles"]
     ```
     or using JS
     ```js
-    document.querySelector(':root').style.setProperty('--primary', 'blue')
+    document
+        .querySelector(':root')
+        .style
+        .setProperty('--primary', 'blue')
     ```
 
 <!-- more -->

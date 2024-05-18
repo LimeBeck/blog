@@ -106,4 +106,20 @@ menu li a {
 menu li a:hover {
     border-bottom: 2px solid var(--primary-color);
 }
-  
+
+// Media Queries for responsiveness
+@media screen and (max-width: 768px) {
+    .container {
+        // max-width: 90%;
+        margin: 0 auto;
+    }
+
+    .logo {
+        padding: 5px;
+        font-size: 14px;
+    }
+
+    .post_link {
+        font-size: 18px;
+    }
+}
